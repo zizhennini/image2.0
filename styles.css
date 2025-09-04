@@ -125,10 +125,29 @@
   user-select: none;
 }
 
+/* 高质量图片显示 */
 .canvas-container canvas {
-  image-rendering: pixelated;
+  /* 对于高分辨率图片，使用更好的渲染方式 */
+  image-rendering: -webkit-optimize-contrast;
   image-rendering: -moz-crisp-edges;
   image-rendering: crisp-edges;
+  
+  /* 确保图片不被拉伸变形 */
+  object-fit: contain;
+  max-width: 100%;
+  height: auto;
+  
+  /* 添加轻微阴影增强视觉效果 */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-radius: 4px;
+}
+
+/* 针对高DPI显示器优化 */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .canvas-container canvas {
+    image-rendering: auto;
+    image-rendering: -webkit-optimize-contrast;
+  }
 }
 
 /* 缩放控制 */

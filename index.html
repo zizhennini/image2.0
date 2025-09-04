@@ -273,9 +273,9 @@
             <button id="resetZoomOriginal" class="text-sm bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded">重置</button>
           </div>
         </div>
-        <div class="relative overflow-hidden border rounded" style="height: 400px;">
-          <canvas id="originalCanvas" class="absolute cursor-crosshair"></canvas>
-          <canvas id="originalPathPreview" class="absolute pointer-events-none"></canvas>
+        <div class="relative bg-gray-50 border rounded flex items-center justify-center" style="min-height: 300px; max-height: 600px; overflow: auto;">
+          <canvas id="originalCanvas" class="cursor-crosshair border-0 max-w-full h-auto"></canvas>
+          <canvas id="originalPathPreview" class="absolute top-0 left-0 pointer-events-none"></canvas>
         </div>
       </div>
       <div class="bg-white rounded shadow p-4 canvas-container relative">
@@ -287,9 +287,9 @@
             <button id="resetZoomSimplified" class="text-sm bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded">重置</button>
           </div>
         </div>
-        <div class="relative overflow-hidden border rounded" style="height: 400px;">
-          <canvas id="simplifiedCanvas" class="absolute cursor-crosshair"></canvas>
-          <canvas id="simplifiedPathPreview" class="absolute pointer-events-none"></canvas>
+        <div class="relative bg-gray-50 border rounded flex items-center justify-center" style="min-height: 300px; max-height: 600px; overflow: auto;">
+          <canvas id="simplifiedCanvas" class="cursor-crosshair border-0 max-w-full h-auto"></canvas>
+          <canvas id="simplifiedPathPreview" class="absolute top-0 left-0 pointer-events-none"></canvas>
         </div>
       </div>
     </div>
