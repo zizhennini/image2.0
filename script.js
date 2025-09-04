@@ -45,8 +45,7 @@ const COLOR_SCHEMES = {
     '深粉': [125, 22, 75], '浅粉': [227, 93, 175],
     '深紫': [125, 22, 125], '浅紫': [227, 93, 227],
     '黑色': [6, 16, 8], '白色': [230, 234, 235]
-  },
-  custom: {}
+  }
 };
 
 const REPLACE_COLORS = {
@@ -144,9 +143,7 @@ class PCBImageProcessor {
     
     this.settings = {
       tolerance: CONFIG.DEFAULT_TOLERANCE,
-      brushSize: { original: CONFIG.DEFAULT_BRUSH_SIZE, simplified: CONFIG.DEFAULT_BRUSH_SIZE },
-      imageFormat: 'png',
-      imageQuality: 0.9
+      brushSize: { original: CONFIG.DEFAULT_BRUSH_SIZE, simplified: CONFIG.DEFAULT_BRUSH_SIZE }
     };
     
     this.selections = {
@@ -348,14 +345,8 @@ class PCBImageProcessor {
   setupColorSelection() {
     document.querySelectorAll('input[name="mainColor"]').forEach(input => {
       input.addEventListener('change', () => {
-        if (input.value === 'custom') {
-          this.showToast('自定义功能开发中，请选择其他色系', 'warning');
-          input.checked = false;
-        } else {
-          document.getElementById('customColorSettings').classList.add('hidden');
-          this.currentColorScheme = COLOR_SCHEMES[input.value];
-          this.generateSimplifiedImage();
-        }
+        this.currentColorScheme = COLOR_SCHEMES[input.value];
+        this.generateSimplifiedImage();
       });
     });
   }
