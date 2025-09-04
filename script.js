@@ -310,7 +310,6 @@ class PCBImageProcessor {
     const fileSizeInfo = this.image.src ? `，大小: ${(this.image.src.length / 1024 / 1024 * 0.75).toFixed(2)}MB` : '';
     document.getElementById('img-info').textContent = `尺寸：${image.width}x${image.height}${fileSizeInfo}`;
     
-    document.getElementById('preprocessSettings').classList.remove('hidden');
     document.getElementById('originalEditTool').classList.remove('hidden');
     
     this.setupOriginalColorPicker();
@@ -318,13 +317,20 @@ class PCBImageProcessor {
   }
 
   setupToolButtons() {
-    ['original', 'simplified'].forEach(type => {
-      ['brush', 'lasso', 'fill', 'eraser'].forEach(tool => {
-        const btn = document.getElementById(`${type}${tool.charAt(0).toUpperCase() + tool.slice(1)}Btn`);
-        if (btn) {
-          btn.addEventListener('click', () => this.setTool(type, tool));
-        }
-      });
+    // 原图工具
+    ['brush', 'fill'].forEach(tool => {
+      const btn = document.getElementById(`original${tool.charAt(0).toUpperCase() + tool.slice(1)}Btn`);
+      if (btn) {
+        btn.addEventListener('click', () => this.setTool('original', tool));
+      }
+    });
+    
+    // 简化图工具
+    ['brush', 'fill'].forEach(tool => {
+      const btn = document.getElementById(`simplified${tool.charAt(0).toUpperCase() + tool.slice(1)}Btn`);
+      if (btn) {
+        btn.addEventListener('click', () => this.setTool('simplified', tool));
+      }
     });
   }
 
@@ -343,7 +349,8 @@ class PCBImageProcessor {
     document.querySelectorAll('input[name="mainColor"]').forEach(input => {
       input.addEventListener('change', () => {
         if (input.value === 'custom') {
-          document.getElementById('customColorSettings').classList.remove('hidden');
+          this.showToast('自定义功能开发中，请选择其他色系', 'warning');
+          input.checked = false;
         } else {
           document.getElementById('customColorSettings').classList.add('hidden');
           this.currentColorScheme = COLOR_SCHEMES[input.value];
@@ -391,7 +398,7 @@ class PCBImageProcessor {
 
   handleCanvasClick(e, canvasType) {
     const tool = this.tools[canvasType];
-    if (!tool.selectedColor && tool.type !== 'eraser') {
+    if (!tool.selectedColor) {
       this.showToast('请先选择颜色', 'warning');
       return;
     }
@@ -911,15 +918,44 @@ class PCBImageProcessor {
   }
 
   downloadAllAsZip() {
+    if (!this.maskList || this.maskList.length === 0) {
+      this.showToast('请先生成遮罩图层', 'warning');
+      return;
+    }
+    
     const customFilename = document.getElementById('customFilename')?.value.trim() || 'pcb灯光画';
     this.showToast('正在打包下载...', 'info');
     
     const zip = new JSZip();
-    // 添加文件到zip
+    
+    // 添加所有生成的图片到ZIP
+    this.maskList.forEach(({ name, dataURL }) => {
+      if (dataURL && dataURL.includes('data:image')) {
+        const base64Data = dataURL.split(',')[1];
+        let filename = name;
+        
+        // 重命名映射
+        const renameMap = {
+          '正面铜皮层': '放在顶层',
+          '白色': '放在顶层丝印层',
+          '正面阻焉层': '放在顶层阻焉层',
+          '背面阻焉层': '放在底层阻焉层注意镜像',
+          '实物预览图': '实物预览图'
+        };
+        
+        if (renameMap[name]) {
+          filename = renameMap[name];
+        }
+        
+        zip.file(`${filename}.png`, base64Data, { base64: true });
+      }
+    });
     
     zip.generateAsync({ type: "blob" }).then((blob) => {
       saveAs(blob, `${customFilename}.zip`);
       this.showToast('下载完成！', 'success');
+    }).catch((error) => {
+      this.showToast('打包失败: ' + error.message, 'error');
     });
   }
 

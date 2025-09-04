@@ -27,31 +27,7 @@
       <div id="img-info" class="text-sm text-gray-600 mt-2"></div>
     </div>
 
-    <!-- 图像预处理设置 -->
-    <div id="preprocessSettings" class="hidden bg-white p-4 rounded shadow">
-      <h2 class="font-semibold mb-3">图像预处理设置</h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="slider-container">
-          <label class="block text-sm font-medium mb-1">亮度调节</label>
-          <input type="range" id="brightnessSlider" min="-50" max="50" value="0" class="w-full">
-          <span id="brightnessValue" class="text-xs text-gray-600">0</span>
-        </div>
-        <div class="slider-container">
-          <label class="block text-sm font-medium mb-1">对比度调节</label>
-          <input type="range" id="contrastSlider" min="0.5" max="2" step="0.1" value="1" class="w-full">
-          <span id="contrastValue" class="text-xs text-gray-600">1.0</span>
-        </div>
-        <div class="slider-container">
-          <label class="block text-sm font-medium mb-1">饱和度调节</label>
-          <input type="range" id="saturationSlider" min="0" max="2" step="0.1" value="1" class="w-full">
-          <span id="saturationValue" class="text-xs text-gray-600">1.0</span>
-        </div>
-      </div>
-      <div class="mt-4 flex gap-2">
-        <button id="applyPreprocessBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">应用预处理</button>
-        <button id="resetPreprocessBtn" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded text-sm">重置</button>
-      </div>
-    </div>
+
 
     <!-- 原图编辑工具 -->
     <div id="originalEditTool" class="hidden bg-white p-4 rounded shadow">
@@ -69,24 +45,14 @@
               </svg>
               画笔
             </button>
-            <button id="originalLassoBtn" class="tool-button" title="套索工具 - 自由选择不规则区域">
-              <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-              </svg>
-              套索
-            </button>
+
             <button id="originalFillBtn" class="tool-button" title="填充工具 - 快速填充相似颜色区域">
               <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"/>
               </svg>
               填充
             </button>
-            <button id="originalEraserBtn" class="tool-button" title="橡皮擦工具 - 恢复原始颜色">
-              <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-              </svg>
-              橡皮擦
-            </button>
+
           </div>
         </div>
 
@@ -112,7 +78,6 @@
       </div>
 
       <div class="flex flex-wrap gap-2">
-        <button id="clearOriginalSelectionBtn" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm hidden">清除选区</button>
         <button id="undoOriginalBtn" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm" disabled>撤销</button>
         <button id="resetOriginalBtn" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm">重置</button>
         <button id="nextStepBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">下一步：选择色系</button>
@@ -187,7 +152,7 @@
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4" id="customColorInputs">
           <!-- 动态生成自定义颜色输入 -->
         </div>
-        <button id="addCustomColorBtn" class="mt-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">添加颜色</button>
+        <p class="text-sm text-gray-500 mt-2">功能开发中，暂不可用</p>
       </div>
     </div>
 
@@ -207,23 +172,11 @@
               </svg>
               画笔
             </button>
-            <button id="simplifiedLassoBtn" class="tool-button">
-              <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-              </svg>
-              套索
-            </button>
             <button id="simplifiedFillBtn" class="tool-button">
               <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"/>
               </svg>
               填充
-            </button>
-            <button id="simplifiedEraserBtn" class="tool-button">
-              <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-              </svg>
-              橡皮擦
             </button>
           </div>
         </div>
@@ -243,21 +196,13 @@
       </div>
 
       <div class="flex flex-wrap gap-2">
-        <button id="clearSimplifiedSelectionBtn" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm hidden">清除选区</button>
         <button id="undoSimplifiedBtn" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm" disabled>撤销</button>
         <button id="resetSimplifiedBtn" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm">重置</button>
         <button id="generateBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">一键生成</button>
       </div>
     </div>
 
-    <!-- 进度指示器 -->
-    <div id="progressIndicator" class="hidden bg-white p-4 rounded shadow">
-      <h3 class="font-medium mb-2">处理进度</h3>
-      <div class="w-full bg-gray-200 rounded-full h-2">
-        <div id="progressBar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
-      </div>
-      <p id="progressText" class="text-sm text-gray-600 mt-1">准备中...</p>
-    </div>
+
 
     <!-- 提示 -->
     <div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-black text-white px-4 py-2 rounded shadow opacity-0 fade text-sm z-50"></div>
@@ -267,29 +212,19 @@
       <div class="bg-white rounded shadow p-4 canvas-container relative">
         <div class="flex justify-between items-center mb-2">
           <h2 class="font-semibold">原图 <span class="text-sm font-normal text-gray-500">(点击图片可修改颜色)</span></h2>
-          <div class="flex gap-2">
-            <button id="zoomInOriginal" class="text-sm bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded">放大</button>
-            <button id="zoomOutOriginal" class="text-sm bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded">缩小</button>
-            <button id="resetZoomOriginal" class="text-sm bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded">重置</button>
-          </div>
         </div>
         <div class="relative bg-gray-50 border rounded flex items-center justify-center" style="min-height: 300px; max-height: 600px; overflow: auto;">
           <canvas id="originalCanvas" class="cursor-crosshair border-0 max-w-full h-auto"></canvas>
-          <canvas id="originalPathPreview" class="absolute top-0 left-0 pointer-events-none"></canvas>
+
         </div>
       </div>
       <div class="bg-white rounded shadow p-4 canvas-container relative">
         <div class="flex justify-between items-center mb-2">
           <h2 class="font-semibold">简化图 <span class="text-sm font-normal text-gray-500">(点击图片可修改颜色)</span></h2>
-          <div class="flex gap-2">
-            <button id="zoomInSimplified" class="text-sm bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded">放大</button>
-            <button id="zoomOutSimplified" class="text-sm bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded">缩小</button>
-            <button id="resetZoomSimplified" class="text-sm bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded">重置</button>
-          </div>
         </div>
         <div class="relative bg-gray-50 border rounded flex items-center justify-center" style="min-height: 300px; max-height: 600px; overflow: auto;">
           <canvas id="simplifiedCanvas" class="cursor-crosshair border-0 max-w-full h-auto"></canvas>
-          <canvas id="simplifiedPathPreview" class="absolute top-0 left-0 pointer-events-none"></canvas>
+
         </div>
       </div>
     </div>
@@ -331,48 +266,13 @@
           <label class="block text-sm font-medium mb-1">自定义文件名</label>
           <input type="text" id="customFilename" class="w-full p-2 border rounded" placeholder="请输入自定义文件名" value="pcb灯光画">
         </div>
-        <div>
-          <label class="block text-sm font-medium mb-1">图片格式</label>
-          <select id="imageFormat" class="w-full p-2 border rounded">
-            <option value="png">PNG (推荐)</option>
-            <option value="jpg">JPG</option>
-            <option value="webp">WebP</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1">图片质量</label>
-          <input type="range" id="imageQuality" min="0.1" max="1" step="0.1" value="0.9" class="w-full">
-          <span id="qualityValue" class="text-xs text-gray-600">90%</span>
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1">输出尺寸</label>
-          <select id="outputSize" class="w-full p-2 border rounded">
-            <option value="original">原始尺寸</option>
-            <option value="0.5">50% 缩放</option>
-            <option value="2">200% 放大</option>
-            <option value="custom">自定义</option>
-          </select>
-        </div>
-      </div>
-      
-      <!-- 自定义尺寸设置 -->
-      <div id="customSizeSettings" class="hidden mt-4 grid grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-medium mb-1">宽度 (px)</label>
-          <input type="number" id="customWidth" class="w-full p-2 border rounded" min="1">
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1">高度 (px)</label>
-          <input type="number" id="customHeight" class="w-full p-2 border rounded" min="1">
-        </div>
+
       </div>
     </div>
 
     <!-- 下载按钮 -->
     <div class="text-center space-y-4">
       <div class="flex flex-wrap justify-center gap-4">
-        <button id="downloadOriginalBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">下载原图</button>
-        <button id="downloadSimplifiedBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">下载简化图</button>
         <button id="downloadAllBtn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded font-medium">一键下载所有图片</button>
       </div>
     </div>
