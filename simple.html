@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>简单PCB处理工具</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        h1 { text-align: center; margin-bottom: 20px; color: #333; }
+        
+        .upload-area {
+            border: 2px dashed #007bff;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            background: #f8f9fa;
+        }
+        .upload-area:hover { background: #e3f2fd; }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            align-items: center;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        
+        .canvas-area {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .canvas-container {
+            flex: 1;
+            text-align: center;
+        }
+        
+        canvas {
+            max-width: 100%;
+            border: 1px solid #ddd;
+            cursor: crosshair;
+        }
+        
+        .color-palette {
+            display: flex;
+            gap: 5px;
+            margin: 10px 0;
+        }
+        
+        .color-box {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #ccc;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .color-box.selected { border-color: #007bff; border-width: 3px; }
+        
+        .results {
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .result-images {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 10px 0;
+        }
+        
+        .result-item {
+            text-align: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .result-item img {
+            width: 100%;
+            max-width: 150px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+        }
+        
+        #toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            display: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>简单PCB处理工具</h1>
+        
+        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+            <p>点击上传PCB图片 (JPG/PNG)</p>
+            <input type="file" id="fileInput" accept="image/*" style="display:none">
+        </div>
+        
+        <div class="controls">
+            <label>选择色系：</label>
+            <select id="colorScheme">
+                <option value="blue">蓝色系</option>
+                <option value="red">红色系</option>
+                <option value="green">绿色系</option>
+                <option value="purple">紫色系</option>
+            </select>
+            <button id="processBtn" disabled>处理图片</button>
+            <button id="downloadBtn" disabled>下载ZIP</button>
+        </div>
+        
+        <div class="canvas-area">
+            <div class="canvas-container">
+                <h3>原图</h3>
+                <canvas id="originalCanvas"></canvas>
+                <div class="color-palette" id="originalColors"></div>
+            </div>
+            <div class="canvas-container">
+                <h3>处理后</h3>
+                <canvas id="processedCanvas"></canvas>
+            </div>
+        </div>
+        
+        <div class="results" id="results">
+            <h3>生成的图层</h3>
+            <div class="result-images" id="resultImages"></div>
+        </div>
+    </div>
+    
+    <div id="toast"></div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    
+    <script>
+        // 简单的颜色方案
+        const colorSchemes = {
+            blue: {
+                '深蓝': [22, 31, 125],
+                '浅蓝': [93, 167, 227], 
+                '深绿': [25, 53, 34],
+                '浅绿': [249, 225, 149],
+                '黑色': [6, 16, 8],
+                '白色': [230, 234, 235]
+            },
+            red: {
+                '深红': [125, 22, 22],
+                '浅红': [227, 93, 93],
+                '深绿': [25, 53, 34], 
+                '浅绿': [249, 225, 149],
+                '黑色': [6, 16, 8],
+                '白色': [230, 234, 235]
+            },
+            green: {
+                '深绿': [34, 125, 22],
+                '浅绿': [149, 227, 93],
+                '深青': [22, 125, 125],
+                '浅青': [93, 227, 227], 
+                '黑色': [6, 16, 8],
+                '白色': [230, 234, 235]
+            },
+            purple: {
+                '深紫': [125, 22, 125],
+                '浅紫': [227, 93, 227],
+                '深绿': [25, 53, 34],
+                '浅绿': [249, 225, 149],
+                '黑色': [6, 16, 8], 
+                '白色': [230, 234, 235]
+            }
+        };
+        
+        let currentImage = null;
+        let processedImageData = null;
+        let selectedColor = null;
+        let generatedMasks = [];
+        
+        // 显示提示
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 2000);
+        }
+        
+        // 颜色距离计算
+        function colorDistance(c1, c2) {
+            return Math.sqrt(Math.pow(c1[0] - c2[0], 2) + Math.pow(c1[1] - c2[1], 2) + Math.pow(c1[2] - c2[2], 2));
+        }
+        
+        // 文件上传
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const img = new Image();
+            img.onload = function() {
+                currentImage = img;
+                
+                const canvas = document.getElementById('originalCanvas');
+                const ctx = canvas.getContext('2d');
+                
+                // 设置画布大小
+                const maxSize = 500;
+                let { width, height } = img;
+                if (width > maxSize || height > maxSize) {
+                    const ratio = Math.min(maxSize / width, maxSize / height);
+                    width *= ratio;
+                    height *= ratio;
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                document.getElementById('processBtn').disabled = false;
+                createColorPalette();
+                showToast('图片上传成功');
+            };
+            
+            const reader = new FileReader();
+            reader.onload = e => img.src = e.target.result;
+            reader.readAsDataURL(file);
+        });
+        
+        // 创建颜色选择器
+        function createColorPalette() {
+            const container = document.getElementById('originalColors');
+            container.innerHTML = '';
+            
+            const allColors = {
+                '深蓝': [22, 31, 125], '浅蓝': [93, 167, 227],
+                '深绿': [25, 53, 34], '浅绿': [249, 225, 149],
+                '黑色': [6, 16, 8], '白色': [230, 234, 235],
+                '深红': [125, 22, 22], '浅红': [227, 93, 93],
+                '深紫': [125, 22, 125], '浅紫': [227, 93, 227]
+            };
+            
+            Object.entries(allColors).forEach(([name, color]) => {
+                const div = document.createElement('div');
+                div.className = 'color-box';
+                div.style.backgroundColor = `rgb(${color.join(',')})`;
+                div.title = name;
+                div.onclick = () => selectColor(div, color);
+                container.appendChild(div);
+            });
+        }
+        
+        // 选择颜色
+        function selectColor(element, color) {
+            document.querySelectorAll('.color-box').forEach(box => box.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedColor = color;
+        }
+        
+        // 画布点击事件 - 简单填充
+        document.getElementById('originalCanvas').addEventListener('click', function(e) {
+            if (!selectedColor) {
+                showToast('请先选择颜色');
+                return;
+            }
+            
+            const canvas = this;
+            const ctx = canvas.getContext('2d');
+            const rect = canvas.getBoundingClientRect();
+            
+            const x = Math.floor(e.clientX - rect.left);
+            const y = Math.floor(e.clientY - rect.top);
+            
+            // 简单的颜色填充
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            floodFill(imageData, x, y, selectedColor);
+            ctx.putImageData(imageData, 0, 0);
+        });
+        
+        // 简单洪水填充算法
+        function floodFill(imageData, startX, startY, newColor) {
+            const data = imageData.data;
+            const width = imageData.width;
+            const height = imageData.height;
+            
+            if (startX < 0 || startX >= width || startY < 0 || startY >= height) return;
+            
+            const index = (startY * width + startX) * 4;
+            const originalColor = [data[index], data[index + 1], data[index + 2]];
+            
+            if (colorDistance(originalColor, newColor) < 10) return;
+            
+            const stack = [[startX, startY]];
+            const visited = new Set();
+            
+            while (stack.length > 0) {
+                const [x, y] = stack.pop();
+                const key = `${x},${y}`;
+                
+                if (visited.has(key) || x < 0 || x >= width || y < 0 || y >= height) continue;
+                
+                const idx = (y * width + x) * 4;
+                const currentColor = [data[idx], data[idx + 1], data[idx + 2]];
+                
+                if (colorDistance(originalColor, currentColor) > 30) continue;
+                
+                visited.add(key);
+                data[idx] = newColor[0];
+                data[idx + 1] = newColor[1]; 
+                data[idx + 2] = newColor[2];
+                
+                stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
+            }
+        }
+        
+        // 处理图片
+        document.getElementById('processBtn').addEventListener('click', function() {
+            if (!currentImage) return;
+            
+            showToast('正在处理...');
+            
+            const scheme = document.getElementById('colorScheme').value;
+            const colors = colorSchemes[scheme];
+            
+            const originalCanvas = document.getElementById('originalCanvas');
+            const processedCanvas = document.getElementById('processedCanvas'); 
+            const ctx = originalCanvas.getContext('2d');
+            const processedCtx = processedCanvas.getContext('2d');
+            
+            processedCanvas.width = originalCanvas.width;
+            processedCanvas.height = originalCanvas.height;
+            
+            const imageData = ctx.getImageData(0, 0, originalCanvas.width, originalCanvas.height);
+            processedImageData = processedCtx.createImageData(originalCanvas.width, originalCanvas.height);
+            
+            // 颜色映射
+            for (let i = 0; i < imageData.data.length; i += 4) {
+                const pixel = [imageData.data[i], imageData.data[i + 1], imageData.data[i + 2]];
+                
+                let closestColor = Object.values(colors)[0];
+                let minDistance = Infinity;
+                
+                for (const color of Object.values(colors)) {
+                    const distance = colorDistance(pixel, color);
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        closestColor = color;
+                    }
+                }
+                
+                processedImageData.data[i] = closestColor[0];
+                processedImageData.data[i + 1] = closestColor[1];
+                processedImageData.data[i + 2] = closestColor[2]; 
+                processedImageData.data[i + 3] = 255;
+            }
+            
+            processedCtx.putImageData(processedImageData, 0, 0);
+            
+            // 生成遮罩
+            generateMasks(colors);
+            
+            document.getElementById('downloadBtn').disabled = false;
+            document.getElementById('results').style.display = 'block';
+            showToast('处理完成');
+        });
+        
+        // 生成遮罩
+        function generateMasks(colors) {
+            generatedMasks = [];
+            const container = document.getElementById('resultImages');
+            container.innerHTML = '';
+            
+            Object.entries(colors).forEach(([name, color]) => {
+                const canvas = document.createElement('canvas');
+                canvas.width = processedImageData.width;
+                canvas.height = processedImageData.height;
+                const ctx = canvas.getContext('2d');
+                
+                const maskData = ctx.createImageData(canvas.width, canvas.height);
+                
+                for (let i = 0; i < processedImageData.data.length; i += 4) {
+                    const r = processedImageData.data[i];
+                    const g = processedImageData.data[i + 1];
+                    const b = processedImageData.data[i + 2];
+                    
+                    if (r === color[0] && g === color[1] && b === color[2]) {
+                        maskData.data[i] = color[0];
+                        maskData.data[i + 1] = color[1];
+                        maskData.data[i + 2] = color[2];
+                        maskData.data[i + 3] = 255;
+                    } else {
+                        maskData.data[i] = 0;
+                        maskData.data[i + 1] = 0;
+                        maskData.data[i + 2] = 0;
+                        maskData.data[i + 3] = 0;
+                    }
+                }
+                
+                ctx.putImageData(maskData, 0, 0);
+                
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+                
+                const img = document.createElement('img');
+                img.src = canvas.toDataURL();
+                img.onclick = () => downloadImage(img.src, `${name}.png`);
+                
+                const label = document.createElement('p');
+                label.textContent = name;
+                
+                resultItem.appendChild(img);
+                resultItem.appendChild(label);
+                container.appendChild(resultItem);
+                
+                generatedMasks.push({ name, canvas, dataURL: img.src });
+            });
+        }
+        
+        // 下载单个图片
+        function downloadImage(dataURL, filename) {
+            const link = document.createElement('a');
+            link.href = dataURL;
+            link.download = filename;
+            link.click();
+        }
+        
+        // 下载ZIP
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            if (generatedMasks.length === 0) return;
+            
+            showToast('正在打包...');
+            
+            const zip = new JSZip();
+            
+            generatedMasks.forEach(({ name, dataURL }) => {
+                const base64 = dataURL.split(',')[1];
+                zip.file(`${name}.png`, base64, { base64: true });
+            });
+            
+            zip.generateAsync({ type: 'blob' }).then(blob => {
+                saveAs(blob, 'pcb_layers.zip');
+                showToast('下载完成');
+            });
+        });
+    </script>
+</body>
+</html>

@@ -11,7 +11,7 @@
   border-radius: 8px;
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  transition: all 0.2s ease;
+  transition: transform 0.1s ease;
   position: relative;
 }
 
@@ -94,7 +94,7 @@
   border-radius: 6px;
   font-size: 14px;
   background: white;
-  transition: all 0.2s ease;
+  transition: background-color 0.1s ease;
   display: flex;
   align-items: center;
   justify-content: center;
